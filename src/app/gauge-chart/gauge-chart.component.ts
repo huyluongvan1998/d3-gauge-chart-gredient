@@ -4,7 +4,7 @@ import { text } from 'd3';
 
 export interface IThat {
   update: any,
-  configuration: any
+  configuration: any;
 }
 
 @Component({
@@ -15,18 +15,16 @@ export interface IThat {
 export class GaugeChartComponent implements OnInit {
   constructor() { }
 
- 
+
   ngOnInit(): void {
     this.Gauge({
       size: 300
     }, 500);
   }
-  
+
 
   //@function config
-  Gauge = function(configuration, value) {
-    let that: IThat;
-
+  Gauge = function (configuration, value) {
     let config = {
       size: 300,
       arcInset: 200,
@@ -43,7 +41,7 @@ export class GaugeChartComponent implements OnInit {
       maxAngle: 90,
 
       transitionMs: 750,
-      
+
       //@label style
       //curent label Style
       currentLabelFontSize: 48,
@@ -109,95 +107,113 @@ export class GaugeChartComponent implements OnInit {
     function render() {
       // oR = 150;
       // iR = 50;
-      
+
       // Arc Defaults
       let arcData = [
-        {startAngle: deg2rad(-90), endAngle: deg2rad(-48)},
-        {startAngle: deg2rad(-45), endAngle: deg2rad(0)},
-        {startAngle: deg2rad(2), endAngle: deg2rad(45)},
-        {startAngle: deg2rad(47), endAngle: deg2rad(90)}
-      ]
+        { startAngle: deg2rad(-90), endAngle: deg2rad(-48) },
+        { startAngle: deg2rad(-45), endAngle: deg2rad(0) },
+        { startAngle: deg2rad(2), endAngle: deg2rad(45) },
+        { startAngle: deg2rad(47), endAngle: deg2rad(90) }
+      ];
       let arcSeparator = [
-        {startAngle: deg2rad(-48), endAngle: deg2rad(-46)},
-        {startAngle: deg2rad(0), endAngle: deg2rad(2)},
-        {startAngle: deg2rad(45), endAngle: deg2rad(47)},
-      ]
+        { startAngle: deg2rad(-48), endAngle: deg2rad(-46) },
+        { startAngle: deg2rad(0), endAngle: deg2rad(2) },
+        { startAngle: deg2rad(45), endAngle: deg2rad(47) },
+      ];
+
+
+      let d1arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(deg2rad(-47));
+      let d2arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-45)).endAngle(deg2rad(-0));
+      let d3arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(2)).endAngle(deg2rad(45));
+      let d4arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(47)).endAngle(deg2rad(90));
 
       arc = d3.arc()
-      .innerRadius(iR)
-      .outerRadius(oR)
+        .innerRadius(iR)
+        .outerRadius(oR).startAngle(deg2rad(-90)).endAngle(deg2rad(-40));
 
 
-    // Place svg element
-    svg = d3.select("body").append("svg")
-      .attr("width", config.size)
-      .attr("height", config.size)
-      .append("g")
-      .attr("transform", "translate(" + config.size / 2 + "," + config.size / 2 + ")")
+      // Place svg element
+      svg = d3.select("body").append("svg")
+        .attr("width", config.size)
+        .attr("height", config.size)
+        .append("g")
+        .attr("transform", "translate(" + config.size / 2 + "," + config.size / 2 + ")");
+
+      //CREATE GRADIENT COLOR 
+      const createGradient = select => {
+        const gradient = select
+          .select('defs')
+          .append('linearGradient')
+          .attr('id', 'gradient');
+        gradient
+          .append('stop')
+          .attr('offset', '0%')
+          .attr('style', 'stop-color:green;stop-opacity:1');
+
+        gradient
+          .append('stop')
+          .attr('offset', '50%')
+          .attr('style', 'stop-color:yellow;stop-opacity:1');
+        gradient
+          .append('stop')
+          .attr('offset', '100%')
+          .attr('style', 'stop-color:red;');
+      };
 
 
-    // Append background arc to svg
-    var background = svg
-    .selectAll("path")
-    .data(arcData)
-    .enter()
-    .append("path")
-    .attr("class", "gaugeBackground")
-    .style('fill', "#d8d8d8")
-    .attr("d", arc)
+      svg.append('defs');
+      svg.call(createGradient);
 
-  //CREATE GRADIENT COLOR 
-  var gradient = svg.append("svg:defs")
-    .append("svg:linearGradient")
-    .attr("id", "gradient")
-    .attr("x1", "0%")
-    .attr("y1", "0%")
-    .attr("x2", "100%")
-    .attr("y2", "0%")
-    .attr("spreadMethod", "pad");
+      // Append background arc to svg
+      const d1Arc = svg
+        .append("path")
+        .attr("class", "d1-arc")
+        .style('fill', "#d8d8d8")
+        .attr("d", d1arc);
 
-gradient.append("svg:stop")
-    .attr("offset", "0%")
-    .attr("stop-color", "#c00")
-    .attr("stop-opacity", 1);
+      var d2Arc = svg
+        .append("path")
+        .attr("id", "d2")
+        .style('fill', "#d8d8d8")
+        .attr("d", d2arc);
 
-gradient.append("svg:stop")
-    .attr("offset", "50%")
-    .attr("stop-color", "yellow")
-    .attr("stop-opacity", 1);
+      var d3Arc = svg
+        .append("path")
+        .attr("id", "d3")
+        .style('fill', "#d8d8d8")
+        .attr("d", d3arc);
 
+      var d4Arc = svg
+        .append("path")
+        .attr("id", "d4")
+        .style('fill', "#d8d8d8")
+        .attr("d", d4arc);
 
-gradient.append("svg:stop")
-    .attr("offset", "100%")
-    .attr("stop-color", "#0c0")
-    .attr("stop-opacity", 1);
+      var animatedPath = svg
+        .append("path")
+        .attr("id", "progressPath")
+        .style('fill', 'red')
+        .attr("d", arc);
 
+      function polarToCartesian(cx: number, cy: number, radius: number, angleInDegrees: number) {
+        var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+        return {
+          x: cx + radius * Math.cos(angleInRadians),
+          y: cy + radius * Math.sin(angleInRadians),
+        };
+      }
+      var cx, cy = (oR - iR) / 2;
+      var start = polarToCartesian(cx, cy, iR, -40 * 0.9999);
+      var end = polarToCartesian(cx, cy, iR, -90);
 
-
-
-
-    // Append foreground arc to svg
-    foreground = svg.append("path")
-      .datum({
-        startAngle: deg2rad(-90),
-        endAngle: deg2rad(-90)
-      })
-      //.style("fill", cur_color)
-      .attr('class','progress')
-      .attr("d", arc)
-     
-
-      var separator= svg
-      .selectAll("path")
-      .filter()
-      .data(arcSeparator)
-      .enter()
-      .append("path")
-      .attr('class','separator')
-      .style('fill', "white")
-      .attr("d", arc);
-
-
+      var circle = svg
+        .append("circle")
+        .attr('cx', start.x)
+        .attr('cy', start.y)
+        .attr('r', 8)
+        .attr('stroke', 'green')
+        .attr('stroke-width', 3)
+        .attr('fill', 'white');
       // Display Max value
       var max = svg
         .append('text')
@@ -205,7 +221,7 @@ gradient.append("svg:stop")
         .attr('text-anchor', 'middle')
         .style('font-family', config.labelFont)
         .text(config.maxValue);
-  
+
       // Display Min value
       var min = svg
         .append('text')
@@ -214,7 +230,7 @@ gradient.append("svg:stop")
         .style('font-size', config.labelFontSize)
         .style('font-family', config.labelFont)
         .text(config.minValue);
-  
+
       // Display Current value
       current = svg
         .append('text')
@@ -225,50 +241,50 @@ gradient.append("svg:stop")
         .attr('text-anchor', 'middle')
         .style('font-size', config.currentLabelFontSize)
         .style('font-family', config.labelFont)
-        .style('letter-spacing',"0.48px")
+        .style('letter-spacing', "0.48px")
         .text(150); // insert current value to this
-    
-        var LabelText = svg
+
+      var LabelText = svg
         .append('text')
         .attr(
           'transform',
           'translate(0,' + -(-config.currentLabelInset + iR / 100) + ')'
-        ) 
+        )
         .attr('text-anchor', 'middle')
-        .style('font-size',config.labelTextFontSize)
-        .style('font-weight',"bold")
-        .style('letter-spacing',"0.24px")
-        .style('fill',"#6cbe45")
-        .text('VERY GOOD')    
-      }
+        .style('font-size', config.labelTextFontSize)
+        .style('font-weight', "bold")
+        .style('letter-spacing', "0.24px")
+        .style('fill', "#6cbe45")
+        .text('VERY GOOD');
+    }
     function update(value) {
       // Get new color
       new_color = config.arcColorFn(value);
-  
-      var numPi = deg2rad(Math.floor((value * 180) / (config.maxValue) - 90));
-  
+
+      var numPi = deg2rad(Math.floor(((value - 300) * 180) / (config.maxValue) - 90));
+
       // Display Current value
       current.transition().text(value);
-      
+
       // .text(config.labelFormat(value))
-  
-    
-     
+
+
+
       // Arc Transition
       foreground
-      .transition()
-      .duration(config.transitionMs)
-      .styleTween('fill', function () {
-        return d3.interpolate(new_color, cur_color);
-      })
-      .call(arcTween, numPi);
-  
+        .transition()
+        .duration(config.transitionMs)
+        .style('fill', function () {
+          return 'url(#gradient)';
+        })
+        .call(arcTween, numPi);
+
       // Set colors for next transition
       hold = cur_color;
       cur_color = new_color;
       new_color = hold;
     }
-  
+
     // Update animation
     function arcTween(transition, newAngle) {
       transition.attrTween('d', function (d) {
@@ -279,13 +295,13 @@ gradient.append("svg:stop")
         };
       });
     }
-    
+
     render();
-    update(300);
-    setInterval(()=> {
-      update(400);
-    }, 1500)
+    // update(300);
+    // setInterval(() => {
+    //   update(400);
+    // }, 1500);
 
     return config;
-    };
-}
+  };
+};
