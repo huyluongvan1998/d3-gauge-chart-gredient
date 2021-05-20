@@ -1,4 +1,4 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 
 export interface IThat {
@@ -16,7 +16,7 @@ export class GaugeChartComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.Gauge(450);
+    this.Gauge(800);
 
   }
 
@@ -25,8 +25,8 @@ export class GaugeChartComponent implements OnInit {
   Gauge = function (value) {
     const { PI, cos, sin, round } = Math;
     let margin = { top: 10, bottom: 10, left: 10, right: 10 };
-    let width = 300 + margin.left + margin.right;
-    let height = 300 + margin.top + margin.bottom;
+    let width = 500 + margin.left + margin.right;
+    let height = 500 + margin.top + margin.bottom;
     function polarToCartesian(
       cx: number,
       cy: number,
@@ -71,28 +71,32 @@ export class GaugeChartComponent implements OnInit {
     const size = width - 32;
     const strokeWidth = 11;
     const r = (size - strokeWidth) / 2;
-    const cx = size / 2;
-    const cy = size / 2;
+    const cx = size / 4;
+    const cy = size / 4;
     const A = 50;
 
     function deg2rad(value) {
       return value * PI / 180;
     }
 
+    // const d1Arc = circlePath(cx, cy, r, -90, -46);
+    // const d2Arc = circlePath(cx, cy, r, -45, -1);
+    // const d3Arc = circlePath(cx, cy, r, 0, 44);
+    // const d4Arc = circlePath(cx, cy, r, 45, 89);
+    const iR = 100;
+    const oR = 100;
 
+    const d1Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(deg2rad(-46));
+    const d2Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-45)).endAngle(deg2rad(-1));
+    const d3Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(44));
+    const d4Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(89));
 
-    const d1Arc = circlePath(cx, cy, r, -90, -46);
-    const d2Arc = circlePath(cx, cy, r, -45, -1);
-    const d3Arc = circlePath(cx, cy, r, 0, 44);
-    const d4Arc = circlePath(cx, cy, r, 45, 89);
-    const dArc = d3.arc().innerRadius(cx + r).outerRadius(cx + r + strokeWidth).startAngle(deg2rad(-90));
-
-    let progressPath;
+    let progressPath, newProgressAngle, endAngle;
 
     let ratio, color;
     const part1Ratio = 41 / 180;
-    const part2Ratio = 91 / 180;
-    const part3Ratio = 141 / 180;
+    const part2Ratio = 89 / 180;
+    const part3Ratio = 135 / 180;
 
     function SemiCircularProgress(
       progressValue,
@@ -103,21 +107,25 @@ export class GaugeChartComponent implements OnInit {
       ratio = (progressValue - startValue) / (endValue - startValue);
       console.log('Ratio: ', ratio);
       console.log('Ratio 2: ', round(ratio * 180));
-      console.log('Part1: ', part1Ratio);
+      console.log('Part3: ', part3Ratio);
 
 
 
       if (ratio > part3Ratio) {
-        progressPath = circlePath(cx, cy, r, 45, -90 + round(ratio * 180));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45));
+        endAngle = deg2rad(45);
         color = 'url(#linearGradient-4)';
       } else if (ratio > part2Ratio) {
-        progressPath = circlePath(cx, cy, r, 0, -90 + round(ratio * 180));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0));
+        endAngle = deg2rad(0);
         color = 'url(#linearGradient-3)';
       } else if (ratio > part1Ratio) {
-        progressPath = circlePath(cx, cy, r, -44.8, -90 + round(ratio * 180));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8));
+        endAngle = deg2rad(-44.8);
         color = 'url(#linearGradient-2)';
       } else {
-        progressPath = circlePath(cx, cy, r, -90, -90 + round(ratio * 180));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90));
+        endAngle = deg2rad(-90);
         color = 'url(#linearGradient-1)';
       }
     }
@@ -207,25 +215,25 @@ export class GaugeChartComponent implements OnInit {
         .attr('y2', 1.099);
       linearG_4.append('stop')
         .attr('offset', 0)
-        .attr('stop-color', '#6dbf47');
+        .attr('stop-color', '#8bd768');
       linearG_4.append('stop')
         .attr('offset', 0.86)
         .attr('stop-color', '#6dbf47');
       linearG_4.append('stop')
         .attr('offset', 0.945)
-        .attr('stop-color', '#6dbf47');
+        .attr('stop-color', '#8bd768');
       linearG_4.append('stop')
         .attr('offset', 0.978)
         .attr('stop-color', '#6dbf47');
       linearG_4.append('stop')
         .attr('offset', 1)
-        .attr('stop-color', '#e1281e');
+        .attr('stop-color', '#6dbf47');
 
 
 
       //@Gauge-chart
       const g = svg.append('g')
-        .attr('transform', `translate(10, 10)`);
+        .attr('transform', `translate(200, 200)`);
 
       g
         .attr('id', 'color-chart')
@@ -234,56 +242,103 @@ export class GaugeChartComponent implements OnInit {
         .attr('originY', width / 2);
 
       g.append('path')
-        .attr('d', d1Arc.d)
+        .attr('d', d1Arc)
         .attr('fill', 'none')
-        .attr('data-name', 'Path 1527')
+        .attr('class', 'path-d1')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', `${ratio > part1Ratio ? 'url(#linearGradient-1)' : '#d8d8d8'}`);
+        .attr('stroke', '#d8d8d8');
 
       g.append('path')
-        .attr('d', d2Arc.d)
+        .attr('d', d2Arc)
         .attr('fill', 'none')
-        .attr('data-name', 'Path 1527')
+        .attr('class', 'path-d2')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', `${ratio > part2Ratio ? 'url(#linearGradient-2)' : '#d8d8d8'}`);
+        .attr('stroke', '#d8d8d8');
       g.append('path')
-        .attr('d', d3Arc.d)
+        .attr('d', d3Arc)
         .attr('fill', 'none')
-        .attr('data-name', 'Path 1527')
+        .attr('class', 'path-d3')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', `${ratio > part3Ratio ? 'url(#linearGradient-3)' : '#d8d8d8'}`);
+        .attr('stroke', '#d8d8d8');
       g.append('path')
-        .attr('d', d4Arc.d)
+        .attr('d', d4Arc)
         .attr('fill', 'none')
-        .attr('data-name', 'Path 1527')
+        .attr('class', 'path-d4')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', `${ratio === 1 ? 'url(#linearGradient-4)' : '#d8d8d8'}`);
+        .attr('stroke', '#d8d8d8');
+
 
       g.append('path')
-        .attr('d', progressPath.d)
+        .datum({ endAngle: endAngle })
         .attr('class', 'progress-path')
         .attr('fill', 'none')
         .attr('stroke-width', strokeWidth)
         .attr('stroke', color);
-      g.append('circle')
-        .attr('cx', progressPath.start.x)
-        .attr('cy', progressPath.start.y)
-        .attr('r', 8)
-        .attr('class', 'mini-circle')
-        .attr('stroke-width', 2)
-        .attr('stroke', '#8bd768')
-        .attr('fill', '#fff');
 
-      g.append('path')
-        .datum({ endAngle: deg2rad(-45) })
-        .attr('d', dArc)
-        .attr('class', 'testArc')
-        .each(function (d: any) {
-          var centerPoint = dArc.centroid(d);
-          console.log('center ', centerPoint);
-        });
+
+      // g.append('path')
+      //   .datum({ endAngle: deg2rad(-45) })
+      //   .attr('d', dArc)
+      //   .attr('class', 'testArc')
+      //   .each(function (d: any) {
+      //     var centerPoint = dArc.centroid(d);
+      //     console.log('center ', centerPoint);
+      //   });
 
     }
+
+    function update() {
+      const g = d3.select('g');
+
+      g.select('.path-d1')
+        .transition()
+        .duration(1000)
+        .attr('d', d1Arc)
+        .attr('stroke', `${ratio > part1Ratio ? 'url(#linearGradient-1)' : '#d8d8d8'}`);
+      g.select('.path-d2')
+        .attr('d', d2Arc)
+        .attr('stroke', `${ratio > part2Ratio ? 'url(#linearGradient-2)' : '#d8d8d8'}`);
+      g.select('.path-d3')
+        .attr('d', d3Arc)
+        .attr('stroke', `${ratio > part3Ratio ? 'url(#linearGradient-3)' : '#d8d8d8'}`);
+      g.select('.path-d4')
+        .attr('d', d4Arc)
+        .attr('stroke', `${ratio === 1 ? 'url(#linearGradient-4)' : '#d8d8d8'}`);
+
+
+      newProgressAngle = deg2rad(-90 + round(ratio * 180));
+
+      const progressGauge = g.select('.progress-path');
+      progressGauge
+        .transition()
+        .duration(3000)
+        .delay(1500)
+        .call(arcTween, newProgressAngle);
+
+      function arcTween(selection, newAngle) {
+        selection.attrTween('d', function (d) {
+          var interpolate = d3.interpolate(d.endAngle, newAngle);
+          return function (t) {
+            d.endAngle = interpolate(t);
+            return progressPath(d);
+          };
+        });
+      };
+
+
+      // const point = progressGauge.node().getPointAtLength(progressGauge.node().getTotalLength() / 2);
+      // g.append('circle')
+      //   .attr("cx", point.x)
+      //   .attr("cy", point.y)
+      //   .attr('r', 8)
+      //   .attr('class', 'mini-circle')
+      //   .attr('stroke-width', 2)
+      //   .attr('stroke', '#8bd768')
+      //   .attr('fill', '#fff');
+    }
+
     draw();
+    update();
+
   };
 }
