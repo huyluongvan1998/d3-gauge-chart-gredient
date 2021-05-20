@@ -16,7 +16,7 @@ export class GaugeChartComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.Gauge(550);
+    this.Gauge(850);
 
   }
 
@@ -88,7 +88,7 @@ export class GaugeChartComponent implements OnInit {
     const d3Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(44));
     const d4Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(89));
 
-    let progressPath, newProgressAngle, endAngle, circle, dataArc;
+    let progressPath, newProgressAngle, circle, dataArc;
     let arc = d3.arc().innerRadius(iR).outerRadius(oR);
     let ratio, color;
     const part1Ratio = 41 / 180;
@@ -311,7 +311,7 @@ export class GaugeChartComponent implements OnInit {
       const progressGauge = g.select('.progress-path');
       progressGauge
         .transition()
-        .duration(3000)
+        .duration(1000)
         .call(arcTween, newProgressAngle);
 
       circle
@@ -347,17 +347,6 @@ export class GaugeChartComponent implements OnInit {
           };
         });
       };
-
-
-
-      // g.append('circle')
-      //   .attr("cx", point.x)
-      //   .attr("cy", point.y)
-      //   .attr('r', 8)
-      //   .attr('class', 'mini-circle')
-      //   .attr('stroke-width', 2)
-      //   .attr('stroke', '#8bd768')
-      //   .attr('fill', '#fff');
     }
 
     draw();
