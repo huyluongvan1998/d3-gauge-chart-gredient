@@ -28,52 +28,7 @@ export class GaugeChartComponent implements OnInit {
     let width = 500 + margin.left + margin.right;
     let height = 500 + margin.top + margin.bottom;
     const size = width - 32;
-    const strokeWidth = 11;
-
-    function polarToCartesian(
-      cx: number,
-      cy: number,
-      radius: number,
-      angleInDegrees: number,
-    ) {
-      var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-      return {
-        x: cx + radius * Math.cos(angleInRadians),
-        y: cy + radius * Math.sin(angleInRadians),
-      };
-    }
-
-    function circlePath(x: number,
-      y: number,
-      radius: number,
-      startAngle: number,
-      endAngle: number,) {
-      var start = polarToCartesian(x, y, radius, endAngle * 0.9999);
-      var end = polarToCartesian(x, y, radius, startAngle);
-      var largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-      const d = [
-        'M',
-        start.x,
-        start.y,
-        'A',
-        radius,
-        radius,
-        0,
-        largeArcFlag,
-        0,
-        end.x,
-        end.y,
-
-      ];
-      return {
-        start,
-        end,
-        d: d.join(' '),
-      };
-    }
-
-
-
+    const strokeWidth = 7;
 
     function deg2rad(value) {
       return value * PI / 180;
@@ -88,7 +43,7 @@ export class GaugeChartComponent implements OnInit {
     const d3Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(44));
     const d4Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(89));
 
-    let newProgressAngle, defaultArc;
+    let newProgressAngle, progressArc;
     let ratio, color;
     const part1Ratio = 41 / 180;
     const part2Ratio = 89 / 180;
@@ -108,16 +63,16 @@ export class GaugeChartComponent implements OnInit {
 
 
       if (ratio > part3Ratio) {
-        defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(newProgressAngle);
+        progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-4)';
       } else if (ratio > part2Ratio) {
-        defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(newProgressAngle);
+        progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-3)';
       } else if (ratio > part1Ratio) {
-        defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8)).endAngle(newProgressAngle);
+        progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-2)';
       } else {
-        defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(newProgressAngle);
+        progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-1)';
       }
     }
@@ -226,6 +181,7 @@ export class GaugeChartComponent implements OnInit {
         .attr('originX', width / 2)
         .attr('originY', width / 2);
 
+      //@Background for each path;
       g.append('path')
         .attr('d', d1Arc)
         .attr('fill', 'none')
@@ -251,22 +207,17 @@ export class GaugeChartComponent implements OnInit {
         .attr('stroke-width', strokeWidth)
         .attr('stroke', `${ratio === 1 ? 'url(#linearGradient-4)' : '#d8d8d8'}`);
 
-
-
-
+      //@Progress Gauge 
       const path = g;
-
-
       const progressGauge = path
         .append('path')
-        .attr('d', defaultArc)
+        .attr('d', progressArc)
         .attr('class', 'progress-path')
         .attr('fill', 'none')
         .attr('stroke-width', strokeWidth)
         .attr('stroke', color);
 
       const point = progressGauge.node().getPointAtLength(progressGauge.node().getTotalLength() / 2);
-      console.log('point ', newProgressAngle);
 
       path.append('circle')
         .attr('cx', point.x)
@@ -275,7 +226,54 @@ export class GaugeChartComponent implements OnInit {
         .attr('id', 'mini-circle')
         .attr('stroke-width', 2)
         .attr('stroke', '#8bd768')
-        .attr('fill', '#fff');
+        .attr('fill', '#fff')
+        .style('display', `${value > 300 ? '' : 'none'}`)
+
+
+      //@GAUGE CHART TEXT 
+      const scale = {
+        min: { right: -7, top: 7, subTop: 10 },
+        max: { right: -7, top: 7, subTop: 10 },
+        content: { right: -35, bottom: -25, text: 'Check back on' },
+        date: { right: -55, bottom: 17, text: 'JAN, 20' }
+      }
+
+      const gaugeVal = { min: 300, max: 850 }
+      path.append('text')
+        .attr('x', -iR + scale.min.right)
+        .attr('y', scale.min.top)
+        .attr('dy', scale.min.subTop)
+        .attr('font-size', 10)
+        .attr('fill', '#95989A')
+        .attr('letter-spacing', 0.2)
+        .text(function () { return gaugeVal.min; });
+      path.append('text')
+        .attr('x', iR + scale.max.right)
+        .attr('y', scale.max.top)
+        .attr('dy', scale.max.subTop)
+        .attr('font-size', 10)
+        .attr('fill', '#95989A')
+        .attr('letter-spacing', 0.2)
+        .text(function () { return gaugeVal.max; });
+      path.append('text')
+        .attr('x', scale.content.right)
+        .attr('y', 0)
+        .attr('dy', scale.content.bottom)
+        .style('font-size', 12)
+        .style('fill', '#95989A')
+        .style('letter-spacing', 0.24)
+        .text(function () { return scale.content.text; });
+      path.append('text')
+        .attr('x', scale.date.right)
+        .attr('y', 0)
+        .attr('dy', scale.date.bottom)
+        .style('font-size', 32)
+        .style('fill', '#3084C6')
+        .style('letter-spacing', 0.64)
+        .style('font-weight', 'bold')
+        .text(function () { return scale.date.text; });
+
+
     }
     draw();
     // update();

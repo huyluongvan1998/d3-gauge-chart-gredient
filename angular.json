@@ -123,6 +123,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "d3-gauge-chart"
+    }
+  },
+  "defaultProject": "d3-gauge-chart",
+  "cli": {
+    "analytics": "6abae022-6976-4523-8a13-8231a7a61527"
+  }
 }
