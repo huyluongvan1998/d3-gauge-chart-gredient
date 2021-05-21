@@ -16,7 +16,7 @@ export class GaugeChartComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.Gauge(850);
+    this.Gauge(800);
 
   }
 
@@ -88,7 +88,7 @@ export class GaugeChartComponent implements OnInit {
     const d3Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(44));
     const d4Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(89));
 
-    let progressPath, newProgressAngle, circle, dataArc;
+    let progressPath, newProgressAngle, circle, dataArc, progress;
     let arc = d3.arc().innerRadius(iR).outerRadius(oR);
     let ratio, color;
     const part1Ratio = 41 / 180;
@@ -107,21 +107,21 @@ export class GaugeChartComponent implements OnInit {
       console.log('Part3: ', part3Ratio);
 
 
-
+      newProgressAngle = deg2rad(-90 + round(ratio * 180));
       if (ratio > part3Ratio) {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(newProgressAngle));
         dataArc = [{ startAngle: deg2rad(45), endAngle: deg2rad(45) }];
         color = 'url(#linearGradient-4)';
       } else if (ratio > part2Ratio) {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(newProgressAngle));
         dataArc = [{ startAngle: deg2rad(0), endAngle: deg2rad(0) }];
         color = 'url(#linearGradient-3)';
       } else if (ratio > part1Ratio) {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8)).endAngle(deg2rad(newProgressAngle));
         dataArc = [{ startAngle: deg2rad(-44.8), endAngle: deg2rad(-44.8) }];
         color = 'url(#linearGradient-2)';
       } else {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90));
+        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(deg2rad(newProgressAngle));
         dataArc = [{ startAngle: deg2rad(-90), endAngle: deg2rad(-90) }];
         color = 'url(#linearGradient-1)';
       }
@@ -137,6 +137,11 @@ export class GaugeChartComponent implements OnInit {
       //@Gradient Linear.
       //@Gradient 1
       let defs = svg.append('defs');
+      //@Color offset
+      const RED = '#e01f21',
+        YELLOW = '#f8b600',
+        LIGHT_GREEN = '#a9ee89',
+        GREEN = '#6cbe45';
 
       //@Gradient 1
       let linearG_1 = defs
@@ -148,16 +153,13 @@ export class GaugeChartComponent implements OnInit {
         .attr('y2', 1.099);
       linearG_1.append('stop')
         .attr('offset', 0)
-        .attr('stop-color', '#6dbf47');
-      linearG_1.append('stop')
-        .attr('offset', 0.399)
-        .attr('stop-color', '#8bd768');
+        .attr('stop-color', YELLOW);
       linearG_1.append('stop')
         .attr('offset', 0.727)
-        .attr('stop-color', '#dfc729');
+        .attr('stop-color', YELLOW);
       linearG_1.append('stop')
         .attr('offset', 1)
-        .attr('stop-color', '#e1281e');
+        .attr('stop-color', RED);
 
       //@Gradient 2
       let linearG_2 = defs
@@ -168,17 +170,14 @@ export class GaugeChartComponent implements OnInit {
         .attr('x2', -2.0)
         .attr('y2', 3.075);
       linearG_2.append('stop')
-        .attr('offset', 0)
-        .attr('stop-color', '#6dbf47');
-      linearG_2.append('stop')
-        .attr('offset', 0.35)
-        .attr('stop-color', '#8bd768');
+        .attr('offset', 0.2)
+        .attr('stop-color', 'rgba(248, 182, 0, 0.4)');
       linearG_2.append('stop')
         .attr('offset', 0.828)
-        .attr('stop-color', '#dfc729');
+        .attr('stop-color', YELLOW);
       linearG_2.append('stop')
         .attr('offset', 1)
-        .attr('stop-color', '#e1281e');
+        .attr('stop-color', RED);
 
       //@Gradient 3
       let linearG_3 = defs
@@ -186,20 +185,20 @@ export class GaugeChartComponent implements OnInit {
         .attr('id', 'linearGradient-3')
         .attr('x1', 7.95)
         .attr('y1', 0.264)
-        .attr('x2', -0.35)
-        .attr('y2', 1.099);
+        .attr('x2', -0.15)
+        .attr('y2', 1.8);
       linearG_3.append('stop')
         .attr('offset', 0)
-        .attr('stop-color', '#6dbf47');
+        .attr('stop-color', LIGHT_GREEN);
       linearG_3.append('stop')
-        .attr('offset', 0.3)
-        .attr('stop-color', '#8bd768');
+        .attr('offset', 0.83)
+        .attr('stop-color', LIGHT_GREEN);
       linearG_3.append('stop')
-        .attr('offset', 0.828)
-        .attr('stop-color', '#6dbf47');
+        .attr('offset', 0.85)
+        .attr('stop-color', GREEN);
       linearG_3.append('stop')
         .attr('offset', 1)
-        .attr('stop-color', '#dfc729');
+        .attr('stop-color', YELLOW);
 
       //@Gradient 4
       console.log('ratio ', ratio === 1);
@@ -212,19 +211,13 @@ export class GaugeChartComponent implements OnInit {
         .attr('y2', 1.099);
       linearG_4.append('stop')
         .attr('offset', 0)
-        .attr('stop-color', '#8bd768');
+        .attr('stop-color', GREEN);
       linearG_4.append('stop')
-        .attr('offset', 0.86)
-        .attr('stop-color', '#6dbf47');
-      linearG_4.append('stop')
-        .attr('offset', 0.945)
-        .attr('stop-color', '#8bd768');
-      linearG_4.append('stop')
-        .attr('offset', 0.978)
-        .attr('stop-color', '#6dbf47');
+        .attr('offset', 0.8)
+        .attr('stop-color', GREEN);
       linearG_4.append('stop')
         .attr('offset', 1)
-        .attr('stop-color', '#6dbf47');
+        .attr('stop-color', LIGHT_GREEN);
 
 
 
@@ -269,30 +262,34 @@ export class GaugeChartComponent implements OnInit {
       const arc = d3.arc().innerRadius(iR).outerRadius(oR);
 
 
-      const path = g
-        .selectAll('.progress-path')
-        .data(dataArc);
+      const path = g;
+      // .selectAll('.progress-path')
+      // .data(dataArc);
 
-      path.enter()
+
+      // path.enter()
+      progress = path
         .append('path')
-        .attr('d', arc)
+        .attr('d', progressPath)
         .attr('class', 'progress-path')
         .attr('fill', 'none')
         .attr('stroke-width', strokeWidth)
         .attr('stroke', color);
 
-      circle = path.enter().append('circle')
-        .attr('r', 8)
-        .attr('id', 'mini-circle')
-        .attr('stroke-width', 2)
-        .attr('stroke', '#8bd768')
-        .attr('fill', '#fff');
+
+      // path.enter().append('circle')
+      //   .attr('r', 8)
+      //   .attr('id', 'mini-circle')
+      //   .attr('stroke-width', 2)
+      //   .attr('stroke', '#8bd768')
+      //   .attr('fill', '#fff');
+
     }
 
     function update() {
       const g = d3.select('g');
       newProgressAngle = deg2rad(-90 + round(ratio * 180));
-
+      console.log('ratio ', ratio);
       g.select('.path-d1')
         .attr('d', d1Arc)
         .attr('stroke', `${ratio > part1Ratio ? 'url(#linearGradient-1)' : '#d8d8d8'}`);
@@ -310,43 +307,53 @@ export class GaugeChartComponent implements OnInit {
 
       const progressGauge = g.select('.progress-path');
       progressGauge
-        .transition()
-        .duration(1000)
-        .call(arcTween, newProgressAngle);
-
-      circle
-        .attr('cx', 0 - iR)
-        .attr('cy', 0)
-        .transition()
-        .duration(1000)
-        .attrTween("pathTween", function (d: any) {
-          const startAngle = d.startAngle;
-          const endAngle = newProgressAngle;
-          const start: any = { startAngle, endAngle: startAngle }; // <-A
-          const end: any = { startAngle: endAngle, endAngle };
-          console.log(start, end);
-          var interpolate = d3.interpolate(start, end);
-          const circ = d3.select(this); // Select the circle
-          return function (t) {
-            const cent = arc.centroid(interpolate(t));
-            circ
-              .attr("cx", cent[0]) // Set the cx
-              .attr("cy", cent[1]); // Set the cy                
-          };
-        });
+        .datum({ endAngle: newProgressAngle });
 
 
+      const point = progress.node().getPointAtLength(progress.node().getTotalLength() / 2);
 
-      //@ArcTween Function => update the new coordinate for progress Gauge
-      function arcTween(selection, newAngle) {
-        selection.attrTween('d', function (d) {
-          var interpolate = d3.interpolate(d.startAngle, newAngle);
-          return function (t) {
-            d.endAngle = interpolate(t);
-            return progressPath(d);
-          };
-        });
-      };
+
+      circle = progressGauge.enter().append('circle')
+        .attr('cx', point.x)
+        .attr('cy', point.y)
+        .attr('r', 8)
+        .attr('id', 'mini-circle')
+        .attr('stroke-width', 2)
+        .attr('stroke', '#8bd768')
+        .attr('fill', '#fff');
+      // circle
+      //   .attr('cx', 0 - iR)
+      //   .attr('cy', 0)
+      //   .transition()
+      //   .duration(1000)
+      //   .attrTween("pathTween", function (d: any) {
+      //     const startAngle = d.startAngle;
+      //     const endAngle = newProgressAngle;
+      //     const start: any = { startAngle, endAngle: startAngle }; // <-A
+      //     const end: any = { startAngle: endAngle, endAngle };
+      //     console.log(start, end);
+      //     var interpolate = d3.interpolate(start, end);
+      //     const circ = d3.select(this); // Select the circle
+      //     return function (t) {
+      //       const cent = arc.centroid(interpolate(t));
+      //       circ
+      //         .attr("cx", cent[0]) // Set the cx
+      //         .attr("cy", cent[1]); // Set the cy                
+      //     };
+      //   });
+
+
+
+      // //@ArcTween Function => update the new coordinate for progress Gauge
+      // function arcTween(selection, newAngle) {
+      //   selection.attrTween('d', function (d) {
+      //     var interpolate = d3.interpolate(d.startAngle, newAngle);
+      //     return function (t) {
+      //       d.endAngle = interpolate(t);
+      //       return progressPath(d);
+      //     };
+      //   });
+      // };
     }
 
     draw();
