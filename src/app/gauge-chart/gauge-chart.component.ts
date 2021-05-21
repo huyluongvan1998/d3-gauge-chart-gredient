@@ -16,14 +16,14 @@ export class GaugeChartComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.Gauge(350);
+    this.Gauge(850);
 
   }
 
 
   //@function config
   Gauge = function (value) {
-    const { PI, cos, sin, round } = Math;
+    const { PI, round } = Math;
     let margin = { top: 10, bottom: 10, left: 10, right: 10 };
     let width = 500 + margin.left + margin.right;
     let height = 500 + margin.top + margin.bottom;
@@ -88,8 +88,7 @@ export class GaugeChartComponent implements OnInit {
     const d3Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(44));
     const d4Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(89));
 
-    let progressPath, newProgressAngle, circle, dataArc, defaultArc;
-    let arc = d3.arc().innerRadius(iR).outerRadius(oR);
+    let newProgressAngle, defaultArc;
     let ratio, color;
     const part1Ratio = 41 / 180;
     const part2Ratio = 89 / 180;
@@ -97,7 +96,6 @@ export class GaugeChartComponent implements OnInit {
 
     function SemiCircularProgress(
       progressValue,
-      totalValue,
       startValue,
       endValue
     ) {
@@ -110,29 +108,21 @@ export class GaugeChartComponent implements OnInit {
 
 
       if (ratio > part3Ratio) {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45));
         defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(newProgressAngle);
-        dataArc = [{ startAngle: deg2rad(45), endAngle: deg2rad(45) }];
         color = 'url(#linearGradient-4)';
       } else if (ratio > part2Ratio) {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0));
         defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(newProgressAngle);
-        dataArc = [{ startAngle: deg2rad(0), endAngle: deg2rad(0) }];
         color = 'url(#linearGradient-3)';
       } else if (ratio > part1Ratio) {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8));
         defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8)).endAngle(newProgressAngle);
-        dataArc = [{ startAngle: deg2rad(-44.8), endAngle: deg2rad(-44.8) }];
         color = 'url(#linearGradient-2)';
       } else {
-        progressPath = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90));
         defaultArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(newProgressAngle);
-        dataArc = [{ startAngle: deg2rad(-90), endAngle: deg2rad(-90) }];
         color = 'url(#linearGradient-1)';
       }
     }
     //@execute function for coordinate of processPath
-    SemiCircularProgress(value, 850, 300, 850);
+    SemiCircularProgress(value, 300, 850);
 
     function draw() {
 
@@ -241,49 +231,33 @@ export class GaugeChartComponent implements OnInit {
         .attr('fill', 'none')
         .attr('class', 'path-d1')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', '#d8d8d8');
-
-
+        .attr('stroke', `${ratio > part1Ratio ? 'url(#linearGradient-1)' : '#d8d8d8'}`);
       g.append('path')
         .attr('d', d2Arc)
         .attr('fill', 'none')
         .attr('class', 'path-d2')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', '#d8d8d8');
+        .attr('stroke', `${ratio > part2Ratio ? 'url(#linearGradient-2)' : '#d8d8d8'}`);
       g.append('path')
         .attr('d', d3Arc)
         .attr('fill', 'none')
         .attr('class', 'path-d3')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', '#d8d8d8');
+        .attr('stroke', `${ratio > part3Ratio ? 'url(#linearGradient-3)' : '#d8d8d8'}`);
       g.append('path')
         .attr('d', d4Arc)
         .attr('fill', 'none')
         .attr('class', 'path-d4')
         .attr('stroke-width', strokeWidth)
-        .attr('stroke', '#d8d8d8');
-
-      g.select('.path-d1')
-        .attr('d', d1Arc)
-        .attr('stroke', `${ratio > part1Ratio ? 'url(#linearGradient-1)' : '#d8d8d8'}`);
-      g.select('.path-d2')
-        .attr('d', d2Arc)
-        .attr('stroke', `${ratio > part2Ratio ? 'url(#linearGradient-2)' : '#d8d8d8'}`);
-      g.select('.path-d3')
-        .attr('d', d3Arc)
-        .attr('stroke', `${ratio > part3Ratio ? 'url(#linearGradient-3)' : '#d8d8d8'}`);
-      g.select('.path-d4')
-        .attr('d', d4Arc)
         .attr('stroke', `${ratio === 1 ? 'url(#linearGradient-4)' : '#d8d8d8'}`);
 
-      const arc = d3.arc().innerRadius(iR).outerRadius(oR);
 
 
-      const path = g
-        .selectAll('.progress-path')
-        .data(dataArc);
 
-      const progressGauge = path.enter()
+      const path = g;
+
+
+      const progressGauge = path
         .append('path')
         .attr('d', defaultArc)
         .attr('class', 'progress-path')
@@ -294,7 +268,7 @@ export class GaugeChartComponent implements OnInit {
       const point = progressGauge.node().getPointAtLength(progressGauge.node().getTotalLength() / 2);
       console.log('point ', newProgressAngle);
 
-      circle = path.enter().append('circle')
+      path.append('circle')
         .attr('cx', point.x)
         .attr('cy', point.y)
         .attr('r', 8)
@@ -302,58 +276,7 @@ export class GaugeChartComponent implements OnInit {
         .attr('stroke-width', 2)
         .attr('stroke', '#8bd768')
         .attr('fill', '#fff');
-
     }
-
-    function update() {
-      const g = d3.select('g');
-      newProgressAngle = deg2rad(-90 + round(ratio * 180));
-      console.log('ratio ', ratio);
-
-
-
-
-      const progressGauge = g.select('.progress-path');
-      progressGauge
-        .transition()
-        .duration(1000)
-        .call(arcTween, newProgressAngle);
-
-      circle
-        .attr('cx', 0 - iR)
-        .attr('cy', 0)
-        .transition()
-        .duration(1000)
-        .attrTween("pathTween", function (d: any) {
-          const startAngle = d.startAngle;
-          const endAngle = newProgressAngle;
-          const start: any = { startAngle, endAngle: startAngle }; // <-A
-          const end: any = { startAngle: endAngle, endAngle };
-          console.log(start, end);
-          var interpolate = d3.interpolate(start, end);
-          const circ = d3.select(this); // Select the circle
-          return function (t) {
-            const cent = arc.centroid(interpolate(t));
-            circ
-              .attr("cx", cent[0]) // Set the cx
-              .attr("cy", cent[1]); // Set the cy                
-          };
-        });
-
-
-
-      //@ArcTween Function => update the new coordinate for progress Gauge
-      function arcTween(selection, newAngle) {
-        selection.attrTween('d', function (d) {
-          var interpolate = d3.interpolate(d.startAngle, newAngle);
-          return function (t) {
-            d.endAngle = interpolate(t);
-            return progressPath(d);
-          };
-        });
-      };
-    }
-
     draw();
     // update();
 
