@@ -16,8 +16,7 @@ export class GaugeChartComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.Gauge(850);
-
+    this.Gauge(850)
   }
 
 
@@ -35,16 +34,21 @@ export class GaugeChartComponent implements OnInit {
     }
 
 
-    const iR = 100;
-    const oR = 100;
+    const iR = 80;
+    const oR = 80;
 
     const d1Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(deg2rad(-46));
     const d2Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-45)).endAngle(deg2rad(-1));
     const d3Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(deg2rad(44));
     const d4Arc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(deg2rad(89));
 
-    let newProgressAngle, progressArc;
-    let ratio, color;
+    let newProgressAngle, progressArc, colorScale, dataDomain, colorOptions, ratio, color;;
+    const RED = '#e01f21',
+      YELLOW = '#f8b600',
+      LIGHT_GREEN = '#a9ee89',
+      GREEN = '#6cbe45';
+
+
     const part1Ratio = 41 / 180;
     const part2Ratio = 89 / 180;
     const part3Ratio = 135 / 180;
@@ -61,19 +65,36 @@ export class GaugeChartComponent implements OnInit {
 
       newProgressAngle = deg2rad(-90 + round(ratio * 180));
 
-
+      let subcolor
       if (ratio > part3Ratio) {
         progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(45)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-4)';
+        subcolor = d3.interpolate(LIGHT_GREEN, GREEN);
+        colorOptions = [subcolor(0.8), subcolor(.85), subcolor(1)]
+        dataDomain = [55, 65, 75]
+        colorScale = d3.scaleLinear().domain(dataDomain).range(colorOptions);
       } else if (ratio > part2Ratio) {
         progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(0)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-3)';
+        subcolor = d3.interpolate(YELLOW, GREEN);
+        let greenSubColor = d3.interpolate(LIGHT_GREEN, GREEN);
+        colorOptions = [subcolor(0.25), subcolor(0.45), subcolor(.65), greenSubColor(0.8)]
+        dataDomain = [1, 15, 22, 40]
+        colorScale = d3.scaleLinear().domain(dataDomain).range(colorOptions);
       } else if (ratio > part1Ratio) {
         progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-44.8)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-2)';
+        subcolor = d3.interpolate(RED, YELLOW);
+        colorOptions = [subcolor(0.98), subcolor(1), subcolor(1.1)]
+        dataDomain = [-39, -20, 0]
+        colorScale = d3.scaleLinear().domain(dataDomain).range(colorOptions);
       } else {
         progressArc = d3.arc().innerRadius(iR).outerRadius(oR).startAngle(deg2rad(-90)).endAngle(newProgressAngle);
         color = 'url(#linearGradient-1)';
+        subcolor = d3.interpolate(RED, YELLOW);
+        colorOptions = [RED, subcolor(0.5), subcolor(0.6)]
+        dataDomain = [-80, -60, -40]
+        colorScale = d3.scaleLinear().domain(dataDomain).range(colorOptions);
       }
     }
     //@execute function for coordinate of processPath
@@ -88,10 +109,7 @@ export class GaugeChartComponent implements OnInit {
       //@Gradient 1
       let defs = svg.append('defs');
       //@Color offset
-      const RED = '#e01f21',
-        YELLOW = '#f8b600',
-        LIGHT_GREEN = '#a9ee89',
-        GREEN = '#6cbe45';
+
 
       //@Gradient 1
       let linearG_1 = defs
@@ -218,14 +236,14 @@ export class GaugeChartComponent implements OnInit {
         .attr('stroke', color);
 
       const point = progressGauge.node().getPointAtLength(progressGauge.node().getTotalLength() / 2);
-
+      console.log('point x', point.x)
       path.append('circle')
         .attr('cx', point.x)
         .attr('cy', point.y)
         .attr('r', 8)
         .attr('id', 'mini-circle')
         .attr('stroke-width', 2)
-        .attr('stroke', '#8bd768')
+        .attr('stroke', colorScale(point.x))
         .attr('fill', '#fff')
         .style('display', `${value > 300 ? '' : 'none'}`)
 
@@ -234,7 +252,7 @@ export class GaugeChartComponent implements OnInit {
       const scale = {
         min: { right: -7, top: 7, subTop: 10 },
         max: { right: -7, top: 7, subTop: 10 },
-        content: { right: -35, bottom: -25, text: 'Check back on' },
+        content: { right: -40, bottom: -25, text: 'Check back on' },
         date: { right: -55, bottom: 17, text: 'JAN, 20' }
       }
 
